@@ -1,26 +1,31 @@
+// Importa las dependencias necesarias para la aplicación
+const express = require('express');  // Framework para crear el servidor web
+const cors = require('cors');        // Permite peticiones entre diferentes dominios
+const dotenv = require('dotenv');    // Maneja variables de entorno
+const dbConnect = require('./config/mongo'); // Importa la función de conexión a MongoDB
 
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-
-// Configurar dotenv
+// Configura dotenv para leer las variables del archivo .env
 dotenv.config();
 
-// Crear la aplicación Express
+// Crea una instancia de la aplicación Express
 const app = express();
 
-// Configurar middlewares
-app.use(cors());
+// Configura los middlewares (funciones que se ejecutan antes de las rutas)
+app.use(cors());                     // Habilita CORS para permitir solicitudes desde otros orígenes
+app.use(express.json());             // Permite procesar datos en formato JSON
 
-// Ruta de prueba
+// Conexión a la base de datos MongoDB Atlas
+dbConnect(); // Ejecuta la función que conecta con MongoDB
+
+// Ruta de prueba para verificar que el servidor funciona
 app.get('/', (req, res) => {
-    res.send('Express está funcionando 🚀');
+  res.send('Servidor Express y conexión a MongoDB funcionando correctamente 🚀');
 });
 
-// Definir puerto
+// Define el puerto del servidor (usa el puerto del entorno o el 3000 por defecto)
 const port = process.env.PORT || 3000;
 
-// Levantar servidor
+// Levanta el servidor en el puerto definido
 app.listen(port, () => {
-    console.log(`Mi app está corriendo en el puerto ${port}`);
+  console.log(`✅ Servidor corriendo en el puerto ${port}`);
 });
