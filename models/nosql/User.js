@@ -1,7 +1,6 @@
-// Importamos mongoose para definir el esquema y el modelo
 const mongoose = require("mongoose");
+const bcrypt = require('bcryptjs'); // ← AGREGAR ESTA LÍNEA
 
-// Definimos el esquema del usuario con los campos del registro
 const UserSchema = new mongoose.Schema(
   {
     nombres: {
@@ -30,13 +29,37 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true
+    },
+    role: { // ← AGREGAR ESTE CAMPO NUEVO
+      type: String,
+      default: 'user',
+      enum: ['user', 'admin'] // roles permitidos
     }
   },
   {
-    timestamps: true, // crea createdAt y updatedAt automáticamente
-    versionKey: false // evita el campo "__v"
+    timestamps: true,
+    versionKey: false
   }
 );
 
-// Exportamos el modelo
+// ← AGREGAR ESTOS MÉTODOS NUEVOS:
+
+// Encriptar password antes de guardar
+UserSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Método para comparar passwords
+UserSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
 module.exports = mongoose.model("users", UserSchema);
