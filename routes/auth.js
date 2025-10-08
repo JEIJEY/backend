@@ -1,23 +1,33 @@
+// ============================================================
 // Importamos express para crear el enrutador
+// ============================================================
 const express = require("express");
 const router = express.Router();
 
+// ============================================================
 // Importamos las funciones del controlador
+// ============================================================
 const { registerUser, loginUser } = require("../controllers/authController");
+
+// ============================================================
+// 🧩 Importamos validaciones con Joi y el middleware genérico
+// ============================================================
+const { registerValidation, loginValidation } = require("../validations/authValidation");
+const validateSchema = require("../middlewares/validateSchema");
 
 // ============================================================
 // 📘 Ruta para registrar un nuevo usuario
 // ============================================================
-// Esta ruta se activa cuando el frontend envía los datos del formulario de registro.
-// Se ejecuta la función registerUser del controlador.
-router.post("/register", registerUser);
+// Primero validamos los datos con Joi -> luego ejecutamos el controlador
+router.post("/register", validateSchema(registerValidation), registerUser);
 
 // ============================================================
 // 🔐 Ruta para iniciar sesión
 // ============================================================
-// Esta ruta recibe el correo y contraseña del formulario de login.
-// Se ejecuta la función loginUser del controlador.
-router.post("/login", loginUser);
+// Primero validamos los datos del login -> luego ejecutamos el controlador
+router.post("/login", validateSchema(loginValidation), loginUser);
 
+// ============================================================
 // Exportamos el router para que pueda ser utilizado en app.js
+// ============================================================
 module.exports = router;

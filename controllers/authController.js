@@ -1,6 +1,4 @@
-// Importamos el modelo de usuario y bcrypt
 const User = require("../models/nosql/User.js");
-
 const bcrypt = require("bcryptjs");
 
 // ===============================
@@ -11,7 +9,7 @@ const registerUser = async (req, res) => {
     const { nombres, apellidos, cedula, fechaNacimiento, email, password } =
       req.body;
 
-    // Verificar si el usuario ya existe
+    // Verificar si el correo ya está registrado
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "El correo ya está registrado" });
@@ -34,6 +32,15 @@ const registerUser = async (req, res) => {
     res.status(201).json({ message: "Usuario registrado correctamente" });
   } catch (error) {
     console.error("❌ Error al registrar:", error);
+
+    // 🧠 Captura de error por duplicado (cédula o correo)
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return res.status(400).json({
+        message: `El ${field} ya está registrado. Usa otro.`,
+      });
+    }
+
     res.status(500).json({ message: "Error al registrar el usuario", error });
   }
 };
@@ -42,13 +49,10 @@ const registerUser = async (req, res) => {
 // Controlador para login
 // ===============================
 const loginUser = async (req, res) => {
-  console.log("🟢 LOGIN USER - Ruta alcanzada");
-  console.log("📦 Body recibido:", req.body);
-  console.log("📧 Email:", req.body?.email);
   try {
     const { email, password } = req.body;
 
-    // Buscar el usuario
+    // Buscar usuario
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
@@ -60,6 +64,7 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
 
+    // Éxito
     res.json({
       message: "Inicio de sesión exitoso",
       user: {
