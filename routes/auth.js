@@ -5,32 +5,32 @@ const router = express.Router();
 // Importamos las funciones del controlador
 const { registerUser, loginUser } = require("../controllers/authController");
 
-// ✅ IMPORTAR EL MIDDLEWARE DE AUTENTICACIÓN (AGREGAR ESTA LÍNEA)
+// ✅ IMPORTAR EL MIDDLEWARE DE AUTENTICACIÓN
 const authMiddleware = require("../middlewares/authMiddleware");
 
-// ============================================================
-// 📘 Ruta para registrar un nuevo usuario
-// ============================================================
-// Esta ruta se activa cuando el frontend envía los datos del formulario de registro.
-// Se ejecuta la función registerUser del controlador.
-router.post("/register", registerUser);
+// ✅ IMPORTAR VALIDACIONES Y MIDDLEWARE DE VALIDACIÓN (AGREGAR ESTO)
+const { registerValidation, loginValidation } = require("../validations/authValidation");
+const validateSchema = require("../middlewares/validateSchema");
 
 // ============================================================
-// 🔐 Ruta para iniciar sesión
+// 📘 Ruta para registrar un nuevo usuario (CON VALIDACIÓN)
 // ============================================================
-// Esta ruta recibe el correo y contraseña del formulario de login.
-// Se ejecuta la función loginUser del controlador.
-router.post("/login", loginUser);
+router.post("/register", validateSchema(registerValidation), registerUser); // ← AGREGAR validateSchema
 
 // ============================================================
-// 🔒 RUTAS PROTEGIDAS CON JWT (AGREGAR ESTAS NUEVAS RUTAS)
+// 🔐 Ruta para iniciar sesión (CON VALIDACIÓN)
+// ============================================================
+router.post("/login", validateSchema(loginValidation), loginUser); // ← AGREGAR validateSchema
+
+// ============================================================
+// 🔒 RUTAS PROTEGIDAS CON JWT 
 // ============================================================
 
 // 📋 Ruta para obtener perfil del usuario (requiere token)
 router.get("/perfil", authMiddleware, (req, res) => {
   res.json({
     message: "✅ Perfil accedido correctamente",
-    usuario: req.user, // ← Información del usuario del token
+    usuario: req.user,
     datos: "Esta es información protegida del perfil"
   });
 });

@@ -1,7 +1,7 @@
 // Importamos el modelo de usuario y bcrypt
 const User = require("../models/nosql/User.js");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken"); // ← AGREGAR ESTA LÍNEA
+const jwt = require("jsonwebtoken");
 
 // ===============================
 // Controlador para registro
@@ -17,22 +17,20 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "El correo ya está registrado" });
     }
 
-    // Encriptar la contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Crear un nuevo usuario
+    // 🚨 CORRECCIÓN: NO encriptar aquí - el modelo User.js ya lo hace
+    // Crear un nuevo usuario (el modelo se encarga de encriptar el password)
     const newUser = new User({
       nombres,
       apellidos,
       cedula,
       fechaNacimiento,
       email,
-      password: hashedPassword,
+      password: password, // ← El modelo lo encripta automáticamente
     });
 
     await newUser.save();
 
-    // ✅ GENERAR TOKEN JWT (AGREGAR ESTO)
+    // Generar token JWT
     const token = jwt.sign(
       {
         id: newUser._id,
@@ -45,7 +43,7 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({ 
       message: "Usuario registrado correctamente",
-      token: token, // ← INCLUIR TOKEN EN RESPUESTA
+      token: token,
       user: {
         id: newUser._id,
         nombres: newUser.nombres,
@@ -80,7 +78,7 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
 
-    // ✅ GENERAR TOKEN JWT (AGREGAR ESTO)
+    // Generar token JWT
     const token = jwt.sign(
       {
         id: user._id,
@@ -93,7 +91,7 @@ const loginUser = async (req, res) => {
 
     res.json({
       message: "Inicio de sesión exitoso",
-      token: token, // ← INCLUIR TOKEN EN RESPUESTA
+      token: token,
       user: {
         id: user._id,
         nombres: user.nombres,
