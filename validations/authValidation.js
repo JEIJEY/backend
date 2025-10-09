@@ -1,20 +1,21 @@
-const Joi = require("joi");
+const Joi = require("joi"); // 📋 Librería para validación de datos
 
-// 🧾 Validación de registro
+// 🧾 ESQUEMA de validación para registro de usuarios
 const registerValidation = Joi.object({
+  // 👤 Validación del campo nombres
   nombres: Joi.string()
-    .min(3)
-    .max(50)
-    .pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/)
-    .trim()
-    .required()
+    .min(3) // 📏 Mínimo 3 caracteres
+    .max(50) // 📏 Máximo 50 caracteres
+    .pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/) // 🔤 Solo letras y espacios
+    .trim() // ✂️ Elimina espacios al inicio y final
+    .required() // 🚫 Campo obligatorio
     .custom((value, helpers) => {
-      // Evita valores como "   " o solo espacios
+      // 🚫 Evita valores con solo espacios
       if (value.trim().length === 0) {
         return helpers.error("any.empty");
       }
 
-      // Asegura que haya al menos un nombre real (no solo una palabra vacía)
+      // ✅ Verifica que haya al menos un nombre válido
       const partes = value.trim().split(/\s+/);
       if (partes.length < 1 || !partes[0]) {
         return helpers.error("string.minNombre");
@@ -30,27 +31,25 @@ const registerValidation = Joi.object({
       "string.minNombre": "Debe ingresar al menos un nombre válido",
     }),
 
+  // 👤 Validación del campo apellidos
   apellidos: Joi.string()
-    .min(3)
-    .max(50)
-    .pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/)
-    .trim()
-    .required()
+    .min(3) // 📏 Mínimo 3 caracteres
+    .max(50) // 📏 Máximo 50 caracteres
+    .pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/) // 🔤 Solo letras y espacios
+    .trim() // ✂️ Elimina espacios al inicio y final
+    .required() // 🚫 Campo obligatorio
     .custom((value, helpers) => {
-      // Elimina espacios múltiples y revisa si hay texto real
+      // 🚫 Evita valores con solo espacios
       const limpio = value.trim();
-
       if (limpio.length === 0) {
         return helpers.error("any.empty");
       }
 
-      // Divide en palabras (apellidos)
+      // ✅ Valida cantidad de apellidos (1-2)
       const partes = limpio.split(/\s+/);
-
       if (partes.length < 1) {
         return helpers.error("string.minApellido");
       }
-
       if (partes.length > 2) {
         return helpers.error("string.maxApellido");
       }
@@ -67,19 +66,20 @@ const registerValidation = Joi.object({
       "string.maxApellido": "Solo se permiten uno o dos apellidos",
     }),
 
+  // 🆔 Validación del campo cédula
   cedula: Joi.string()
-    .trim()
-    .pattern(/^\d+$/)
-    .min(6)
-    .max(10)
-    .required()
+    .trim() // ✂️ Elimina espacios
+    .pattern(/^\d+$/) // 🔢 Solo números
+    .min(6) // 📏 Mínimo 6 dígitos
+    .max(10) // 📏 Máximo 10 dígitos
+    .required() // 🚫 Campo obligatorio
     .custom((value, helpers) => {
-      // Evita valores como "000000" o todos los dígitos iguales
+      // 🚫 Evita dígitos repetidos (ej: 111111)
       if (/^(\d)\1+$/.test(value)) {
         return helpers.error("string.repetitiveCedula");
       }
 
-      // Evita valores con ceros al inicio (opcional, según tu país)
+      // 🚫 Evita cédulas que empiecen con cero
       if (/^0/.test(value)) {
         return helpers.error("string.leadingZero");
       }
@@ -96,14 +96,15 @@ const registerValidation = Joi.object({
       "string.leadingZero": "La cédula no puede comenzar con cero",
     }),
 
+  // 📅 Validación del campo fecha de nacimiento
   fechaNacimiento: Joi.date()
-    .less("now")
-    .required()
+    .less("now") // ⏰ No puede ser fecha futura
+    .required() // 🚫 Campo obligatorio
     .custom((value, helpers) => {
       const fecha = new Date(value);
       const hoy = new Date();
 
-      // Calculamos la edad
+      // 🎂 Calcula la edad exacta
       const edad =
         hoy.getFullYear() -
         fecha.getFullYear() -
@@ -111,12 +112,12 @@ const registerValidation = Joi.object({
           ? 1
           : 0);
 
-      // ⛔ Si es menor de 18 años
+      // 🚫 Valida edad mínima (18 años)
       if (edad < 18) {
         return helpers.error("date.menorEdad");
       }
 
-      // ⛔ Si es demasiado antiguo (más de 120 años)
+      // 🚫 Valida edad máxima (120 años)
       if (edad > 120) {
         return helpers.error("date.mayor120");
       }
@@ -131,24 +132,26 @@ const registerValidation = Joi.object({
       "date.mayor120": "La fecha de nacimiento no puede ser tan antigua",
     }),
 
+  // 📧 Validación del campo email
   email: Joi.string()
-    .trim()
-    .lowercase()
-    .email({ tlds: { allow: ["com", "net", "org", "edu", "co", "es"] } })
-    .pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
-    .required()
+    .trim() // ✂️ Elimina espacios
+    .lowercase() // 🔠 Convierte a minúsculas
+    .email({ tlds: { allow: ["com", "net", "org", "edu", "co", "es"] } }) // 🌐 Dominios permitidos
+    .pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) // 📧 Formato email válido
+    .required() // 🚫 Campo obligatorio
     .messages({
       "string.empty": "El correo es obligatorio",
       "string.email": "Debe ingresar un correo válido",
       "string.pattern.base": "El formato del correo no es válido",
     }),
 
+  // 🔐 Validación del campo contraseña
   password: Joi.string()
-    .min(8)
+    .min(8) // 📏 Mínimo 8 caracteres
     .pattern(
       new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%&*?._-]).+$")
-    )
-    .required()
+    ) // 🔒 Requisitos de seguridad
+    .required() // 🚫 Campo obligatorio
     .messages({
       "string.min": "La contraseña debe tener mínimo 8 caracteres",
       "string.pattern.base":
@@ -157,14 +160,18 @@ const registerValidation = Joi.object({
     }),
 });
 
-// 🧾 Validación de login
+// 🔐 ESQUEMA de validación para inicio de sesión
 const loginValidation = Joi.object({
+  // 📧 Validación simplificada para login
   email: Joi.string().email().required().messages({
     "string.email": "Debe ingresar un correo válido",
   }),
+
+  // 🔐 Validación básica de contraseña para login
   password: Joi.string().required().messages({
     "string.empty": "La contraseña es obligatoria",
   }),
 });
 
+// 📤 Exportar esquemas de validación
 module.exports = { registerValidation, loginValidation };
