@@ -1,37 +1,37 @@
-// Importa las dependencias necesarias para la aplicación
-const express = require("express"); // Framework para crear el servidor web
-const cors = require("cors"); // Permite peticiones entre diferentes dominios
-const dotenv = require("dotenv"); // Maneja variables de entorno
-const dbConnect = require("./config/mongo"); // Importa la función de conexión a MongoDB
+// Importar dependencias principales
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const dbConnectMongo = require("./config/mongo");
+const dbConnectMySQL = require("./config/mysql");
 
-// 🧭 Importa las rutas de autenticación
+// Importar rutas
 const authRoutes = require("./routes/auth");
+const productosRoutes = require("./routes/productos");
 
-// Configura dotenv para leer las variables del archivo .env
+// Configurar dotenv
 dotenv.config();
 
-// Crea una instancia de la aplicación Express
+// Inicializar Express
 const app = express();
 
-// Configura los middlewares (funciones que se ejecutan antes de las rutas)
-app.use(cors()); // Habilita CORS para permitir solicitudes desde otros orígenes
-app.use(express.json()); // Permite procesar datos en formato JSON
+// Middlewares globales
+app.use(cors());
+app.use(express.json());
 
-// 🛣️ Usa las rutas de autenticación con un prefijo
+// Rutas principales
 app.use("/api/auth", authRoutes);
+app.use("/api/productos", productosRoutes);
 
-// Conexión a la base de datos MongoDB Atlas
-dbConnect(); // Ejecuta la función que conecta con MongoDB
+// Conexiones a las bases de datos
+dbConnectMongo();
+dbConnectMySQL();
 
-// Ruta de prueba para verificar que el servidor funciona
+// Ruta raíz de prueba
 app.get("/", (req, res) => {
-  res.send("Servidor Express y conexión a MongoDB funcionando correctamente 🚀");
+  res.send("🚀 Servidor activo con MongoDB + MySQL funcionando correctamente");
 });
 
-// Define el puerto del servidor (usa el puerto del entorno o el 3001 por defecto)
+// Levantar servidor
 const port = process.env.PORT || 3001;
-
-// Levanta el servidor en el puerto definido
-app.listen(port, () => {
-  console.log(`✅ Servidor corriendo en el puerto ${port}`);
-});
+app.listen(port, () => console.log(`✅ Servidor corriendo en el puerto ${port}`));

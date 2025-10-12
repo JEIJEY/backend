@@ -1,0 +1,25 @@
+|-- [.vscode]
+    |-- settings.json
+|-- [config]
+    |-- mongo.js
+|-- [controllers]
+    |-- authController.js
+|-- [handlers]
+    |-- jwtHandler.js
+|-- [middlewares]
+    |-- authMiddleware.js
+    |-- validateSchema.js
+|-- [models]
+    |-- [nosql]
+        |-- User.js
+|-- [routes]
+    |-- auth.js
+|-- [validations]
+    |-- authValidation.js
+|-- .env
+|-- .gitignore
+|-- app.js
+|-- env.example
+|-- estructura.txt
+|-- package-lock.json
+|-- package.json
