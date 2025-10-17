@@ -3,9 +3,11 @@
 // ======================================================
 
 const categoriasModel = require("../models/categoriasModel");
+const getConexion = require("../config/mysql");
 
-// El controlador se encarga de recibir las peticiones HTTP,
-// ejecutar las funciones del modelo y responder con JSON.
+// ======================================================
+// 📦 OBJETO CONTROLADOR
+// ======================================================
 const categoriasController = {
   // ======================================================
   // 1️⃣ Obtener todas las categorías
@@ -27,9 +29,11 @@ const categoriasController = {
     try {
       const { id } = req.params;
       const categoria = await categoriasModel.getById(id);
+
       if (!categoria) {
         return res.status(404).json({ mensaje: "Categoría no encontrada" });
       }
+
       res.status(200).json(categoria);
     } catch (error) {
       console.error("❌ Error al obtener categoría:", error);
@@ -45,12 +49,14 @@ const categoriasController = {
       const { nombre, descripcion } = req.body;
 
       if (!nombre || nombre.trim() === "") {
-        return res.status(400).json({ mensaje: "El campo 'nombre' es obligatorio" });
+        return res
+          .status(400)
+          .json({ mensaje: "El campo 'nombre' es obligatorio" });
       }
 
       const nuevaCategoria = await categoriasModel.create({ nombre, descripcion });
       res.status(201).json({
-        mensaje: "Categoría creada correctamente",
+        mensaje: "✅ Categoría creada correctamente",
         data: nuevaCategoria,
       });
     } catch (error) {
@@ -68,12 +74,14 @@ const categoriasController = {
       const { nombre, descripcion } = req.body;
 
       if (!nombre || nombre.trim() === "") {
-        return res.status(400).json({ mensaje: "El campo 'nombre' es obligatorio" });
+        return res
+          .status(400)
+          .json({ mensaje: "El campo 'nombre' es obligatorio" });
       }
 
       const categoriaActualizada = await categoriasModel.update(id, { nombre, descripcion });
       res.status(200).json({
-        mensaje: "Categoría actualizada correctamente",
+        mensaje: "✅ Categoría actualizada correctamente",
         data: categoriaActualizada,
       });
     } catch (error) {
@@ -83,18 +91,47 @@ const categoriasController = {
   },
 
   // ======================================================
-  // 5️⃣ Eliminar una categoría
+  // 5️⃣ Eliminar una categoría (borrado lógico + verificación)
   // ======================================================
   async eliminar(req, res) {
     try {
       const { id } = req.params;
-      await categoriasModel.remove(id);
-      res.status(200).json({ mensaje: "Categoría eliminada correctamente" });
+      const conexion = await getConexion();
+
+      // 🔍 Verificar si hay productos asociados a esta categoría
+      const [productos] = await conexion.query(
+        "SELECT COUNT(*) AS total FROM productos WHERE id_categoria = ?",
+        [id]
+      );
+
+      if (productos[0].total > 0) {
+        return res.status(400).json({
+          mensaje: "❌ No se puede eliminar la categoría porque tiene productos asociados.",
+        });
+      }
+
+      // 🗃️ Si no tiene productos → se desactiva la categoría (estado = 0)
+      const [resultado] = await conexion.query(
+        "UPDATE categorias SET estado = 0 WHERE id_categoria = ?",
+        [id]
+      );
+
+      if (resultado.affectedRows === 0) {
+        return res.status(404).json({ mensaje: "❌ Categoría no encontrada." });
+      }
+
+      res.status(200).json({ mensaje: "✅ Categoría desactivada correctamente." });
     } catch (error) {
-      console.error("❌ Error al eliminar categoría:", error);
-      res.status(500).json({ error: "Error interno del servidor" });
+      console.error("💥 Error al eliminar categoría:", error);
+      res.status(500).json({
+        error: "Error interno del servidor",
+        detalle: error.message,
+      });
     }
   },
 };
 
+// ======================================================
+// 📤 EXPORTAR CONTROLADOR
+// ======================================================
 module.exports = categoriasController;

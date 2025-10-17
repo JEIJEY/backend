@@ -11,7 +11,10 @@ const getProductos = async (req, res) => {
     res.status(200).json(productos);
   } catch (error) {
     console.error("❌ Error al obtener productos:", error);
-    res.status(500).json({ message: "Error al obtener productos", error: error.message });
+    res.status(500).json({
+      message: "Error al obtener productos",
+      error: error.message,
+    });
   }
 };
 
@@ -28,15 +31,19 @@ const postProductos = async (req, res) => {
       unidad_medida,
       precio_unitario,
       id_categoria,
+      id_marca,
       id_proveedor,
+      estado,
     } = req.body;
 
-    // Validación básica
-    if (!nombre || !precio_unitario || !id_categoria || !id_proveedor) {
-      return res.status(400).json({ message: "⚠️ Faltan campos obligatorios" });
+    // ⚠️ Validación básica
+    if (!nombre || !precio_unitario || !id_categoria || !id_marca || !id_proveedor) {
+      return res.status(400).json({
+        message: "⚠️ Faltan campos obligatorios: nombre, precio_unitario, id_categoria, id_marca, id_proveedor",
+      });
     }
 
-    // Llamar al modelo para insertar
+    // 🧩 Crear producto
     const idInsertado = await ProductosModel.postProducto({
       nombre,
       descripcion,
@@ -44,7 +51,9 @@ const postProductos = async (req, res) => {
       unidad_medida,
       precio_unitario,
       id_categoria,
+      id_marca,
       id_proveedor,
+      estado: estado ?? 1, // si no se envía, queda activo por defecto
     });
 
     res.status(201).json({
@@ -53,7 +62,10 @@ const postProductos = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error al agregar producto:", error);
-    res.status(500).json({ message: "Error al agregar producto", error: error.message });
+    res.status(500).json({
+      message: "Error al agregar producto",
+      error: error.message,
+    });
   }
 };
 
@@ -71,7 +83,9 @@ const putProductos = async (req, res) => {
       unidad_medida,
       precio_unitario,
       id_categoria,
+      id_marca,
       id_proveedor,
+      estado,
     } = req.body;
 
     const resultado = await ProductosModel.putProducto(
@@ -82,17 +96,24 @@ const putProductos = async (req, res) => {
       unidad_medida,
       precio_unitario,
       id_categoria,
-      id_proveedor
+      id_marca,
+      id_proveedor,
+      estado
     );
 
     if (resultado === 0) {
-      return res.status(400).json({ message: "❌ No se pudo actualizar el producto" });
+      return res.status(404).json({
+        message: "❌ No se encontró el producto o no se pudo actualizar",
+      });
     }
 
     res.status(200).json({ message: "✅ Producto actualizado correctamente" });
   } catch (error) {
     console.error("❌ Error al actualizar producto:", error);
-    res.status(500).json({ message: "Error al actualizar producto", error: error.message });
+    res.status(500).json({
+      message: "Error al actualizar producto",
+      error: error.message,
+    });
   }
 };
 
@@ -103,7 +124,6 @@ const putProductos = async (req, res) => {
 const deleteProductos = async (req, res) => {
   try {
     const { id } = req.params;
-
     const resultado = await ProductosModel.delProducto(id);
 
     if (!resultado) {
@@ -113,12 +133,15 @@ const deleteProductos = async (req, res) => {
     res.status(200).json({ message: "✅ Producto eliminado correctamente" });
   } catch (error) {
     console.error("❌ Error al eliminar producto:", error);
-    res.status(500).json({ message: "Error al eliminar producto", error: error.message });
+    res.status(500).json({
+      message: "Error al eliminar producto",
+      error: error.message,
+    });
   }
 };
 
 // ============================================================
-// 📤 Exportar funciones para usarlas en las rutas
+// 📤 Exportar funciones
 // ============================================================
 module.exports = {
   getProductos,
