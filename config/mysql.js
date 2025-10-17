@@ -1,3 +1,5 @@
+require("dotenv").config(); // ← 🔥 ESTA LÍNEA CARGA LAS VARIABLES .env
+
 const mysql = require("mysql2/promise");
 
 const getConexion = async () => {

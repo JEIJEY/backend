@@ -1,9 +1,13 @@
-|-- [.vscode]
-    |-- settings.json
 |-- [config]
     |-- mongo.js
+    |-- mysql.js
 |-- [controllers]
     |-- authController.js
+    |-- categoriasController.js
+    |-- productosController.js
+|-- [DB]
+    |-- database.js
+|-- [docks]
 |-- [handlers]
     |-- jwtHandler.js
 |-- [middlewares]
@@ -12,8 +16,12 @@
 |-- [models]
     |-- [nosql]
         |-- User.js
+    |-- categoriasModel.js
+    |-- productosModel.js
 |-- [routes]
     |-- auth.js
+    |-- categorias.js
+    |-- productos.js
 |-- [validations]
     |-- authValidation.js
 |-- .env
@@ -23,3 +31,4 @@
 |-- estructura.txt
 |-- package-lock.json
 |-- package.json
+|-- test-categorias.js
