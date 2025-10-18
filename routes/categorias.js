@@ -8,8 +8,18 @@ const router = express.Router();
 // Importamos el controlador
 const categoriasController = require("../controllers/categoriasController");
 
-// Si luego quieres proteger las rutas con JWT:
-const { authMiddleware } = require("../middlewares/authMiddleware");
+// ======================================================
+// 📂 RUTAS JERÁRQUICAS (deben ir ANTES del :id)
+// ======================================================
+
+// ✅ Obtener categorías raíz
+router.get("/raiz", categoriasController.obtenerCategoriasRaiz);
+
+// ✅ Obtener jerarquía completa de categorías
+router.get("/jerarquia", categoriasController.obtenerJerarquia);
+
+// ✅ Obtener subcategorías de una categoría padre
+router.get("/:id/subcategorias", categoriasController.obtenerSubcategorias);
 
 // ======================================================
 // CRUD - CATEGORÍAS
@@ -31,6 +41,6 @@ router.put("/:id", categoriasController.actualizar);
 router.delete("/:id", categoriasController.eliminar);
 
 // ======================================================
-// Exportar el router para usarlo en app.js
+// Exportar el router
 // ======================================================
 module.exports = router;

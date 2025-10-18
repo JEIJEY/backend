@@ -42,11 +42,11 @@ const categoriasController = {
   },
 
   // ======================================================
-  // 3️⃣ Crear una nueva categoría
+  // 3️⃣ Crear una nueva categoría o subcategoría
   // ======================================================
   async crear(req, res) {
     try {
-      const { nombre, descripcion } = req.body;
+      const { nombre, descripcion, parent_id } = req.body;
 
       if (!nombre || nombre.trim() === "") {
         return res
@@ -54,9 +54,17 @@ const categoriasController = {
           .json({ mensaje: "El campo 'nombre' es obligatorio" });
       }
 
-      const nuevaCategoria = await categoriasModel.create({ nombre, descripcion });
+      // ✅ parent_id puede ser nulo o numérico (para subcategorías)
+      const nuevaCategoria = await categoriasModel.create({
+        nombre,
+        descripcion,
+        parent_id: parent_id || null,
+      });
+
       res.status(201).json({
-        mensaje: "✅ Categoría creada correctamente",
+        mensaje: parent_id
+          ? "✅ Subcategoría creada correctamente"
+          : "✅ Categoría raíz creada correctamente",
         data: nuevaCategoria,
       });
     } catch (error) {
@@ -79,7 +87,11 @@ const categoriasController = {
           .json({ mensaje: "El campo 'nombre' es obligatorio" });
       }
 
-      const categoriaActualizada = await categoriasModel.update(id, { nombre, descripcion });
+      const categoriaActualizada = await categoriasModel.update(id, {
+        nombre,
+        descripcion,
+      });
+
       res.status(200).json({
         mensaje: "✅ Categoría actualizada correctamente",
         data: categoriaActualizada,
@@ -106,7 +118,8 @@ const categoriasController = {
 
       if (productos[0].total > 0) {
         return res.status(400).json({
-          mensaje: "❌ No se puede eliminar la categoría porque tiene productos asociados.",
+          mensaje:
+            "❌ No se puede eliminar la categoría porque tiene productos asociados.",
         });
       }
 
@@ -120,7 +133,9 @@ const categoriasController = {
         return res.status(404).json({ mensaje: "❌ Categoría no encontrada." });
       }
 
-      res.status(200).json({ mensaje: "✅ Categoría desactivada correctamente." });
+      res.status(200).json({
+        mensaje: "✅ Categoría desactivada correctamente.",
+      });
     } catch (error) {
       console.error("💥 Error al eliminar categoría:", error);
       res.status(500).json({
@@ -129,6 +144,44 @@ const categoriasController = {
       });
     }
   },
+
+  // ======================================================
+  // 🌳 6️⃣ CONTROLADOR - CATEGORÍAS JERÁRQUICAS (FASE 2)
+  // ======================================================
+
+  // ✅ Obtener categorías raíz (sin padre)
+  async obtenerCategoriasRaiz(req, res) {
+    try {
+      const categorias = await categoriasModel.getCategoriasByParentId(null);
+      res.status(200).json(categorias);
+    } catch (error) {
+      console.error("❌ Error al obtener categorías raíz:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  },
+
+  // ✅ Obtener subcategorías de una categoría específica
+  async obtenerSubcategorias(req, res) {
+    try {
+      const { id } = req.params;
+      const categorias = await categoriasModel.getCategoriasByParentId(id);
+      res.status(200).json(categorias);
+    } catch (error) {
+      console.error("❌ Error al obtener subcategorías:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  },
+
+  // ✅ Obtener jerarquía completa de categorías y subcategorías
+  async obtenerJerarquia(req, res) {
+    try {
+      const data = await categoriasModel.getJerarquiaCompleta();
+      res.status(200).json(data);
+    } catch (error) {
+      console.error("❌ Error al obtener jerarquía:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
 };
 
 // ======================================================
