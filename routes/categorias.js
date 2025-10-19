@@ -41,6 +41,12 @@ router.put("/:id", categoriasController.actualizar);
 router.delete("/:id", categoriasController.eliminar);
 
 // ======================================================
+// 🧩 RUTA PARA CREAR PRODUCTOS DENTRO DE UNA CATEGORÍA
+// ======================================================
+// Esta ruta permite agregar productos directamente en una categoría específica
+router.post("/:id_categoria/productos", categoriasController.crearProductoEnCategoria);
+
+// ======================================================
 // Exportar el router
 // ======================================================
 module.exports = router;

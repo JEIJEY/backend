@@ -140,6 +140,40 @@ const deleteProductos = async (req, res) => {
   }
 };
 
+// ... todo tu código anterior igual ...
+
+// ============================================================
+// 🟢 OBTENER PRODUCTOS POR CATEGORÍA
+// GET /api/productos/categoria/:id_categoria
+// ============================================================
+const obtenerPorCategoria = async (req, res) => {
+  try {
+    const { id_categoria } = req.params;
+
+    console.log(`🎯 Buscando productos para categoría ID: ${id_categoria}`);
+
+    // Validar que id_categoria sea un número
+    if (isNaN(id_categoria)) {
+      return res.status(400).json({
+        message: "❌ ID de categoría debe ser un número",
+      });
+    }
+
+    // 🧩 Obtener productos por categoría
+    const productos = await ProductosModel.getByCategoria(id_categoria);
+
+    console.log(`✅ Encontrados ${productos.length} productos para categoría ${id_categoria}`);
+
+    res.status(200).json(productos);
+  } catch (error) {
+    console.error("❌ Error al obtener productos por categoría:", error);
+    res.status(500).json({
+      message: "Error al obtener productos por categoría",
+      error: error.message,
+    });
+  }
+};
+
 // ============================================================
 // 📤 Exportar funciones
 // ============================================================
@@ -148,4 +182,5 @@ module.exports = {
   postProductos,
   putProductos,
   deleteProductos,
+  obtenerPorCategoria, // ✅ AHORA SÍ INCLUIDA
 };

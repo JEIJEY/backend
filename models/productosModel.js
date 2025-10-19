@@ -122,6 +122,38 @@ const ProductosModel = {
     );
     return rows.affectedRows;
   },
+
+  // =======================================
+  // 🟪 OBTENER PRODUCTOS POR CATEGORÍA
+  // =======================================
+  getByCategoria: async (id_categoria) => {
+    const conexion = await getConexion();
+    const [rows] = await conexion.query(
+      `
+      SELECT 
+        p.id_producto,
+        p.nombre,
+        p.descripcion,
+        p.stock,
+        p.unidad_medida,
+        p.precio_unitario,
+        p.estado,
+        p.fecha_creacion,
+        p.fecha_actualizacion,
+        c.nombre AS categoria_nombre,
+        m.nombre AS marca_nombre,
+        pr.nombre AS proveedor_nombre
+      FROM productos p
+      LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+      LEFT JOIN marcas m ON p.id_marca = m.id_marca
+      LEFT JOIN proveedores pr ON p.id_proveedor = pr.id_proveedor
+      WHERE p.id_categoria = ? AND p.estado = 1
+      ORDER BY p.nombre ASC
+      `,
+      [id_categoria]
+    );
+    return rows;
+  },
 };
 
 module.exports = ProductosModel;

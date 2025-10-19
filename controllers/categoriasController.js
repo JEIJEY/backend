@@ -3,6 +3,7 @@
 // ======================================================
 
 const categoriasModel = require("../models/categoriasModel");
+const productosModel = require("../models/productosModel"); // ✅ nuevo import
 const getConexion = require("../config/mysql");
 
 // ======================================================
@@ -181,7 +182,45 @@ const categoriasController = {
       console.error("❌ Error al obtener jerarquía:", error);
       res.status(500).json({ error: "Error interno del servidor" });
     }
-  }
+  },
+
+  // ======================================================
+  // 🧩 7️⃣ CREAR PRODUCTO DENTRO DE UNA CATEGORÍA
+  // ======================================================
+  async crearProductoEnCategoria(req, res) {
+    try {
+      const { id_categoria } = req.params;
+      const productoData = req.body;
+
+      console.log(`🎯 Creando producto en categoría ${id_categoria}`);
+
+      // ✅ Usamos el método existente de productosModel
+      const nuevoProductoId = await productosModel.postProducto({
+        nombre: productoData.nombre,
+        descripcion: productoData.descripcion || "",
+        stock: productoData.stock,
+        unidad_medida: productoData.unidad_medida,
+        precio_unitario: productoData.precio_unitario,
+        id_categoria,
+        id_marca: productoData.id_marca || null,
+        id_proveedor: productoData.id_proveedor || null,
+        estado: productoData.estado || 1,
+      });
+
+      console.log(`✅ Producto creado con ID: ${nuevoProductoId}`);
+
+      res.status(201).json({
+        message: "✅ Producto agregado correctamente",
+        id_insertado: nuevoProductoId,
+      });
+    } catch (error) {
+      console.error("❌ Error creando producto en categoría:", error);
+      res.status(500).json({
+        error: "Error interno del servidor",
+        message: error.message,
+      });
+    }
+  },
 };
 
 // ======================================================

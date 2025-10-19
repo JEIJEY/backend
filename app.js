@@ -12,7 +12,9 @@ const dbConnectMySQL = require("./config/mysql");
 // Importar rutas
 const authRoutes = require("./routes/auth");
 const productosRoutes = require("./routes/productos");
-const categoriasRoutes = require("./routes/categorias"); // 👈 nueva ruta
+const categoriasRoutes = require("./routes/categorias");
+const marcasRoutes = require("./routes/marcas");
+const proveedoresRoutes = require("./routes/proveedores");
 
 // Configurar dotenv
 dotenv.config();
@@ -31,7 +33,9 @@ app.use(express.json());
 // ======================================================
 app.use("/api/auth", authRoutes);
 app.use("/api/productos", productosRoutes);
-app.use("/api/categorias", categoriasRoutes); // ✅ ya funciona
+app.use("/api/categorias", categoriasRoutes);
+app.use("/api/marcas", marcasRoutes);
+app.use("/api/proveedores", proveedoresRoutes);
 
 // ======================================================
 // 🗄️ CONEXIONES A LAS BASES DE DATOS
@@ -50,6 +54,7 @@ app.get("/", (req, res) => {
 // 🚀 LEVANTAR SERVIDOR
 // ======================================================
 const port = process.env.PORT || 3001;
-app.listen(port, () =>
-  console.log(`✅ Servidor corriendo en el puerto ${port}`)
-);
+app.listen(port, () => {
+  console.log(`✅ Servidor corriendo en el puerto ${port}`);
+});
+
