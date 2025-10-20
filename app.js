@@ -15,6 +15,7 @@ const productosRoutes = require("./routes/productos");
 const categoriasRoutes = require("./routes/categorias");
 const marcasRoutes = require("./routes/marcas");
 const proveedoresRoutes = require("./routes/proveedores");
+const abcRoutes = require("./routes/abc"); // ✅ Nueva ruta agregada
 
 // Configurar dotenv
 dotenv.config();
@@ -36,6 +37,7 @@ app.use("/api/productos", productosRoutes);
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/marcas", marcasRoutes);
 app.use("/api/proveedores", proveedoresRoutes);
+app.use("/api/abc", abcRoutes); // ✅ Ruta ABC añadida correctamente
 
 // ======================================================
 // 🗄️ CONEXIONES A LAS BASES DE DATOS
@@ -57,4 +59,3 @@ const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`✅ Servidor corriendo en el puerto ${port}`);
 });
-
