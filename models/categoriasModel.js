@@ -1,18 +1,36 @@
-// backend/models/categoriasModel.js
+// ======================================================
+// 📦 MODELO DE CATEGORÍAS
+// ======================================================
 const getConexion = require("../config/mysql");
 
 const categoriasModel = {
-  // Obtener todas las categorías ACTIVAS
+  // ======================================================
+  // 🔹 Obtener todas las categorías ACTIVAS
+  // ======================================================
   async getAll() {
     const conexion = await getConexion();
-    const [rows] = await conexion.query(
-      "SELECT * FROM categorias WHERE estado = 1 ORDER BY id_categoria DESC"
-    );
+
+    // ✅ Ajuste para estandarizar el campo `parent_id`
+    //    Si la tabla tiene `id_padre`, lo mapea como `parent_id`
+    const [rows] = await conexion.query(`
+      SELECT 
+        id_categoria,
+        nombre,
+        descripcion,
+        COALESCE(parent_id, id_padre) AS parent_id,
+        estado
+      FROM categorias
+      WHERE estado = 1
+      ORDER BY id_categoria DESC
+    `);
+
     await conexion.end();
     return rows;
   },
 
-  // Obtener una categoría por ID
+  // ======================================================
+  // 🔹 Obtener una categoría por ID
+  // ======================================================
   async getById(id_categoria) {
     const conexion = await getConexion();
     const [rows] = await conexion.query(
@@ -23,7 +41,9 @@ const categoriasModel = {
     return rows[0];
   },
 
-  // Crear nueva categoría o subcategoría
+  // ======================================================
+  // 🔹 Crear nueva categoría o subcategoría
+  // ======================================================
   async create({ nombre, descripcion, parent_id = null }) {
     const conexion = await getConexion();
     const [result] = await conexion.query(
@@ -34,7 +54,9 @@ const categoriasModel = {
     return { id_categoria: result.insertId, nombre, descripcion, parent_id };
   },
 
-  // Actualizar categoría existente
+  // ======================================================
+  // 🔹 Actualizar categoría existente
+  // ======================================================
   async update(id_categoria, { nombre, descripcion }) {
     const conexion = await getConexion();
     await conexion.query(
@@ -45,7 +67,9 @@ const categoriasModel = {
     return { id_categoria, nombre, descripcion };
   },
 
-  // Eliminar categoría (borrado lógico)
+  // ======================================================
+  // 🔹 Eliminar categoría (borrado lógico)
+  // ======================================================
   async remove(id_categoria) {
     const conexion = await getConexion();
     await conexion.query(
@@ -56,21 +80,28 @@ const categoriasModel = {
     return { success: true };
   },
 
-  // Obtener categorías por parent_id
+  // ======================================================
+  // 🔹 Obtener categorías por parent_id
+  // ======================================================
   async getCategoriasByParentId(parentId = null) {
     const conexion = await getConexion();
     let query = `
-      SELECT id_categoria, nombre, descripcion, parent_id, estado
+      SELECT 
+        id_categoria, 
+        nombre, 
+        descripcion, 
+        COALESCE(parent_id, id_padre) AS parent_id, 
+        estado
       FROM categorias 
       WHERE estado = 1
     `;
     const params = [];
 
     if (parentId === null) {
-      query += " AND parent_id IS NULL";
+      query += " AND (parent_id IS NULL OR id_padre IS NULL)";
     } else {
-      query += " AND parent_id = ?";
-      params.push(parentId);
+      query += " AND (parent_id = ? OR id_padre = ?)";
+      params.push(parentId, parentId);
     }
 
     query += " ORDER BY nombre";
@@ -79,7 +110,9 @@ const categoriasModel = {
     return rows;
   },
 
-  // ✅ Jerarquía completa en UNA sola consulta (MySQL 8+)
+  // ======================================================
+  // 🔹 Obtener jerarquía completa (MySQL 8+)
+  // ======================================================
   async getJerarquiaCompleta() {
     const conexion = await getConexion();
     const [rows] = await conexion.query(`
@@ -88,10 +121,10 @@ const categoriasModel = {
           id_categoria,
           nombre,
           descripcion,
-          parent_id,
+          COALESCE(parent_id, id_padre) AS parent_id,
           0 AS nivel
         FROM categorias
-        WHERE parent_id IS NULL AND estado = 1
+        WHERE (parent_id IS NULL OR id_padre IS NULL) AND estado = 1
 
         UNION ALL
 
@@ -99,10 +132,10 @@ const categoriasModel = {
           c.id_categoria,
           c.nombre,
           c.descripcion,
-          c.parent_id,
+          COALESCE(c.parent_id, c.id_padre),
           j.nivel + 1
         FROM categorias c
-        INNER JOIN jerarquia j ON c.parent_id = j.id_categoria
+        INNER JOIN jerarquia j ON COALESCE(c.parent_id, c.id_padre) = j.id_categoria
         WHERE c.estado = 1
       )
       SELECT * FROM jerarquia
@@ -113,4 +146,7 @@ const categoriasModel = {
   },
 };
 
+// ======================================================
+// 📤 EXPORTAR MODELO
+// ======================================================
 module.exports = categoriasModel;

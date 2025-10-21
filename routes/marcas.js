@@ -1,23 +1,27 @@
 // ======================================================
-// 🚏 RUTAS DE MARCAS
+// 🚏 RUTAS DE MARCAS (con protección JWT)
 // ======================================================
-
 const express = require("express");
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  try {
-    const marcas = [
-      { id_marca: 1, nombre: "Coca-Cola", estado: 1 },
-      { id_marca: 2, nombre: "Nestlé", estado: 1 },
-      { id_marca: 3, nombre: "La Muñeca", estado: 1 },
-    ];
-    res.status(200).json(marcas);
-  } catch (error) {
-    console.error("❌ Error al obtener marcas:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
+const marcasController = require("../controllers/marcasController");
+const authMiddleware = require("../middlewares/authMiddleware");
 
-// 👇 ESTA LÍNEA ES OBLIGATORIA
+// ======================================================
+// 📋 CRUD DE MARCAS
+// ======================================================
+
+// ✅ Obtener todas las marcas activas
+router.get("/", authMiddleware, marcasController.obtenerMarcas);
+
+// ✅ Obtener una marca por su ID
+router.get("/:id", authMiddleware, marcasController.obtenerMarcaPorId);
+
+// ✅ Crear una nueva marca (permite al front agregar si no existe)
+router.post("/", authMiddleware, marcasController.crearMarca);
+
+// (Opcional para más adelante)
+// router.put("/:id", authMiddleware, marcasController.actualizarMarca);
+// router.delete("/:id", authMiddleware, marcasController.eliminarMarca);
+
 module.exports = router;

@@ -1,18 +1,32 @@
+// ======================================================
+// 🚏 RUTAS DE PROVEEDORES (con protección JWT)
+// ======================================================
+
 const express = require("express");
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  try {
-    const proveedores = [
-      { id_proveedor: 1, nombre: "Distribuidora ABC" },
-      { id_proveedor: 2, nombre: "Comercializadora Andina" },
-      { id_proveedor: 3, nombre: "La Bodega Central" },
-    ];
-    res.status(200).json(proveedores);
-  } catch (error) {
-    console.error("❌ Error al obtener proveedores:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
+// 📦 Controlador
+const proveedoresController = require("../controllers/proveedoresController");
 
+// 🔐 Middleware de autenticación
+const authMiddleware = require("../middlewares/authMiddleware");
+
+// ======================================================
+// 📜 RUTAS DISPONIBLES
+// ======================================================
+
+// ✅ Crear un nuevo proveedor (debe ir antes de las rutas con :id)
+router.post("/", authMiddleware, proveedoresController.crearProveedor);
+
+// ✅ Obtener todos los proveedores activos
+router.get("/", authMiddleware, proveedoresController.obtenerProveedores);
+
+// ✅ Obtener un proveedor específico por ID
+router.get("/:id", authMiddleware, proveedoresController.obtenerProveedorPorId);
+
+// (🧩 Próximamente) PUT y DELETE para editar o eliminar proveedores
+
+// ======================================================
+// 📤 EXPORTAR RUTAS
+// ======================================================
 module.exports = router;

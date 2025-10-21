@@ -2,6 +2,7 @@
     |-- mongo.js
     |-- mysql.js
 |-- [controllers]
+    |-- abcController.js
     |-- authController.js
     |-- categoriasController.js
     |-- productosController.js
@@ -19,9 +20,12 @@
     |-- categoriasModel.js
     |-- productosModel.js
 |-- [routes]
+    |-- abc.js
     |-- auth.js
     |-- categorias.js
+    |-- marcas.js
     |-- productos.js
+    |-- proveedores.js
 |-- [validations]
     |-- authValidation.js
 |-- .env
