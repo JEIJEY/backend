@@ -3,11 +3,12 @@
     |-- mysql.js
 |-- [controllers]
     |-- abcController.js
+    |-- alertsController.js
     |-- authController.js
     |-- categoriasController.js
+    |-- marcasController.js
     |-- productosController.js
-|-- [DB]
-    |-- database.js
+    |-- proveedoresController.js
 |-- [docks]
 |-- [handlers]
     |-- jwtHandler.js
@@ -17,15 +18,21 @@
 |-- [models]
     |-- [nosql]
         |-- User.js
+    |-- alertsModel.js
     |-- categoriasModel.js
+    |-- marcasModel.js
     |-- productosModel.js
+    |-- proveedoresModel.js
 |-- [routes]
     |-- abc.js
+    |-- alerts.js
     |-- auth.js
     |-- categorias.js
     |-- marcas.js
     |-- productos.js
     |-- proveedores.js
+|-- [services]
+    |-- alertsService.js
 |-- [validations]
     |-- authValidation.js
 |-- .env
